@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Microsoft Word - 100 Questões</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .word-blue { background-color: #2b579a; }
+        .word-blue-hover:hover { background-color: #1e3e73; }
+        .word-text { color: #2b579a; }
+        
+        /* Custom scrollbar for results */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden relative">
+        <!-- Header -->
+        <div class="word-blue text-white p-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 9h-4v2h4v-2zm0 4h-4v2h4v-2zm2-8V3.5L18.5 9H15z"/></svg>
+                    Simulado Word: Arquivo a Design
+                </h1>
+                <p class="text-sm opacity-80 mt-1">Reforço de Estudos - 100 Questões</p>
+            </div>
+            <div id="header-progress" class="hidden text-right">
+                <span id="question-counter" class="text-xl font-bold">1/100</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-bar-container" class="w-full bg-gray-200 h-2 hidden">
+            <div id="progress-bar" class="word-blue h-2 transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="p-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Bem-vindo ao Simulado!</h2>
+            <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Este teste contém <strong>100 perguntas</strong> focadas nas guias: <strong>Arquivo, Página Inicial, Inserir e Design</strong> do Microsoft Word.<br>
+                Leia atentamente cada questão. O feedback será dado imediatamente após a sua escolha. Ao final, você verá o seu resultado completo.
+            </p>
+            <div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-8 inline-block text-left">
+                <h3 class="font-bold mb-2">Instruções:</h3>
+                <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Selecione a resposta correta entre as 4 opções.</li>
+                    <li>Após selecionar, clique em "Próxima".</li>
+                    <li>O simulado não tem tempo limite.</li>
+                </ul>
+            </div>
+            <br>
+            <button onclick="startQuiz()" class="word-blue word-blue-hover text-white font-bold py-3 px-8 rounded-lg shadow-md transition transform hover:scale-105 text-lg">
+                Iniciar Simulado
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="p-8 hidden">
+            <div class="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wider" id="question-category">Categoria</div>
+            <h2 id="question-text" class="text-xl font-medium text-gray-800 mb-6 min-h-[60px]"></h2>
+            
+            <div id="options-container" class="space-y-3 mb-8">
+                <!-- Options will be injected here -->
+            </div>
+
+            <!-- Caixa de Explicação (Oculta por padrão) -->
+            <div id="explanation-box" class="hidden mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm transition-all shadow-sm">
+                <span class="font-bold flex items-center gap-1 mb-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                    Explicação:
+                </span>
+                <span id="explanation-text" class="leading-relaxed text-gray-700"></span>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <div id="feedback-message" class="font-semibold text-lg"></div>
+                <button id="next-btn" onclick="nextQuestion()" class="word-blue word-blue-hover text-white font-bold py-2 px-6 rounded-lg shadow transition hidden">
+                    Próxima Questão &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="p-8 hidden">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Simulado Concluído!</h2>
+                <p class="text-gray-600">Aqui está o seu desempenho:</p>
+            </div>
+            
+            <div class="flex justify-center mb-8">
+                <div class="bg-gray-50 border-2 border-gray-200 rounded-full w-48 h-48 flex flex-col items-center justify-center shadow-inner">
+                    <span id="final-score" class="text-5xl font-bold word-text">0</span>
+                    <span class="text-gray-500 font-medium">de 100 corretas</span>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Revisão Rápida (Questões Erradas)</h3>
+                <div id="review-container" class="max-h-64 overflow-y-auto space-y-4 pr-2">
+                    <!-- Incorrect answers will be injected here -->
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="restartQuiz()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-lg shadow transition">
+                    Tentar Novamente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // GUIA ARQUIVO (1-20)
+            { category: "Guia Arquivo", question: "Qual é o atalho de teclado padrão no Word em português para a ação 'Salvar'?", options: ["Ctrl + S", "Ctrl + B", "Ctrl + G", "Ctrl + P"], answer: 1, explanation: "No Word em Português-BR, 'Ctrl + B' salva o documento. O atalho 'Ctrl + S' é usado para Sublinhar o texto." },
+            { category: "Guia Arquivo", question: "Na guia Arquivo, qual opção é usada para proteger o documento com uma senha?", options: ["Informações > Proteger Documento", "Opções > Senhas", "Salvar Como > Ferramentas > Opções de Segurança", "Exportar > Criptografar"], answer: 0, explanation: "O menu 'Informações' centraliza as opções de segurança, incluindo a criptografia com senha no botão 'Proteger Documento'." },
+            { category: "Guia Arquivo", question: "Qual comando da guia Arquivo permite transformar o documento em um arquivo PDF?", options: ["Compartilhar", "Exportar", "Salvar", "Transformar"], answer: 1, explanation: "A seção 'Exportar' possui um botão rápido e direto chamado 'Criar Documento PDF/XPS'." },
+            { category: "Guia Arquivo", question: "Onde você encontra a opção para inspecionar o documento em busca de informações pessoais antes de compartilhá-lo?", options: ["Informações > Inspecionar Documento", "Opções > Revisão", "Compartilhar > Segurança", "Exportar > Metadados"], answer: 0, explanation: "Esta ferramenta de privacidade, que limpa autores e metadados ocultos, fica no menu Arquivo > Informações." },
+            { category: "Guia Arquivo", question: "Qual opção NÃO está presente no menu principal da guia Arquivo (Backstage)?", options: ["Novo", "Abrir", "Inserir Tabela", "Imprimir"], answer: 2, explanation: "'Inserir Tabela' pertence à guia Inserir na faixa de opções principal, não ao menu Arquivo (Backstage)." },
+            { category: "Guia Arquivo", question: "A opção 'Salvar Como' é essencialmente usada para:", options: ["Salvar as alterações no arquivo atual", "Salvar o documento com um novo nome, local ou formato", "Salvar o documento na nuvem automaticamente", "Imprimir o documento em formato digital"], answer: 1, explanation: "'Salvar Como' cria uma nova cópia do documento, permitindo alterar seu destino, nome ou extensão (ex: de .docx para .pdf)." },
+            { category: "Guia Arquivo", question: "Qual atalho abre a janela 'Imprimir' diretamente?", options: ["Ctrl + I", "Ctrl + M", "Ctrl + P", "Ctrl + T"], answer: 2, explanation: "'Ctrl + P' vem do inglês 'Print' e é o atalho universal para abrir o menu de impressão em quase todos os programas." },
+            { category: "Guia Arquivo", question: "Na seção 'Imprimir', se você quiser imprimir apenas as páginas 1, 3 e 5, como deve digitar no campo de páginas?", options: ["1-3-5", "1;3;5", "1,3,5", "1 a 5"], answer: 2, explanation: "Usa-se a vírgula ou ponto-e-vírgula para separar páginas individuais. O hífen (1-5) imprimiria o intervalo completo da página 1 até a 5." },
+            { category: "Guia Arquivo", question: "Onde você pode alterar o nome de usuário que fica registrado nos comentários e alterações do Word?", options: ["Arquivo > Opções > Geral", "Arquivo > Informações", "Arquivo > Conta", "Página Inicial > Edição"], answer: 0, explanation: "O nome e as iniciais do autor que marcam o documento ficam na seção 'Geral', dentro da janela de 'Opções' do Word." },
+            { category: "Guia Arquivo", question: "A seção 'Conta' na guia Arquivo permite:", options: ["Mudar a senha do documento", "Alterar o tema do Office e gerenciar serviços conectados", "Criar um novo documento em branco", "Exportar dados da conta para Excel"], answer: 1, explanation: "A guia Conta gerencia sua licença do Office, o visual do programa (Tema Escuro/Claro) e conexões de nuvem como o OneDrive." },
+            { category: "Guia Arquivo", question: "Para recuperar documentos não salvos, em qual seção da guia Arquivo você deve ir?", options: ["Abrir > Documentos Recentes", "Informações > Gerenciar Documento", "Salvar Como", "Opções > Salvar"], answer: 1, explanation: "Em 'Informações', o botão 'Gerenciar Documento' contém a opção mágica de 'Recuperar Documentos Não Salvos' (arquivos temporários)." },
+            { category: "Guia Arquivo", question: "O que a opção 'Compartilhar' permite fazer diretamente da interface do Word?", options: ["Enviar como anexo de e-mail ou link do OneDrive", "Compartilhar no WhatsApp Web", "Exportar para o pendrive", "Publicar no Instagram"], answer: 0, explanation: "A ferramenta de compartilhamento nativa foca em envio colaborativo via link (OneDrive/SharePoint) ou disparo automático via Outlook (e-mail)." },
+            { category: "Guia Arquivo", question: "A área de configurações detalhadas e preferências do Word (como Revisão de texto e Faixa de Opções) fica em:", options: ["Informações", "Avançado", "Opções", "Conta"], answer: 2, explanation: "Clicar em 'Opções' abre uma janela separada que é o painel de controle central de todas as preferências avançadas do Microsoft Word." },
+            { category: "Guia Arquivo", question: "Qual comando da guia Arquivo fecha o documento atual, mas não fecha o programa Word?", options: ["Sair", "Fechar", "Encerrar", "Minimizar"], answer: 1, explanation: "'Fechar' encerra apenas o arquivo que está sendo visualizado. 'Sair' (geralmente o X no canto superior) encerra o aplicativo inteiro." },
+            { category: "Guia Arquivo", question: "Como acessar rapidamente as propriedades avançadas do documento (como autor, título, assunto)?", options: ["Arquivo > Compartilhar", "Arquivo > Exportar", "Arquivo > Informações > Propriedades", "Arquivo > Opções > Exibir"], answer: 2, explanation: "As propriedades de metadados ficam no canto direito da tela quando você clica em Arquivo > Informações." },
+            { category: "Guia Arquivo", question: "Na guia Arquivo, a opção 'Histórico' só fica disponível se o documento estiver:", options: ["Salvo localmente no disco C:", "Salvo em uma pasta de rede compartilhada", "Salvo no OneDrive ou SharePoint", "Com proteção por senha ativada"], answer: 2, explanation: "O Histórico de Versões acompanha as mudanças em tempo real e exige que o arquivo esteja hospedado na nuvem da Microsoft." },
+            { category: "Guia Arquivo", question: "Qual formato de arquivo NÃO pode ser selecionado como padrão na opção 'Exportar'?", options: ["Documento PDF", "Documento XPS", "Apresentação PPTX", "Alterar Tipo de Arquivo (TXT, RTF)"], answer: 2, explanation: "PPTX é o formato do PowerPoint. O Word exporta nativamente para PDF, XPS e formatos de texto como RTF ou TXT." },
+            { category: "Guia Arquivo", question: "A opção 'Sempre Abrir Como Somente Leitura' é ativada em qual seção?", options: ["Salvar Como", "Informações > Proteger Documento", "Opções > Central de Confiabilidade", "Compartilhar"], answer: 1, explanation: "Esta é uma forma leve de proteção encontrada em 'Informações > Proteger Documento' que alerta o leitor para não fazer alterações." },
+            { category: "Guia Arquivo", question: "Qual atalho cria um Novo documento em branco instantaneamente?", options: ["Ctrl + N", "Ctrl + O", "Ctrl + A", "Ctrl + M"], answer: 1, explanation: "No Word PT-BR, 'Ctrl + O' cria um nOvo documento. 'Ctrl + A' Abre arquivos e 'Ctrl + N' aplica Negrito." },
+            { category: "Guia Arquivo", question: "No menu Imprimir, a opção 'Agrupar' serve para:", options: ["Imprimir várias páginas na mesma folha", "Imprimir cópias completas do documento na ordem correta (ex: 123, 123)", "Juntar vários documentos diferentes em uma impressão", "Grampear o documento na impressora"], answer: 1, explanation: "Se você pedir 3 cópias de um documento de 3 páginas, 'Agrupar' imprime na ordem (1,2,3; 1,2,3; 1,2,3). Sem agrupar, seria (1,1,1; 2,2,2; 3,3,3)." },
+
+            // GUIA PÁGINA INICIAL (21-50)
+            { category: "Guia Página Inicial", question: "O botão 'Pincel de Formatação' serve para:", options: ["Pintar o fundo do texto", "Copiar a formatação de um local e aplicá-la em outro", "Apagar toda a formatação", "Alterar a cor da fonte"], answer: 1, explanation: "O Pincel 'suga' a formatação (cor, fonte, tamanho) de um texto e 'pinta' (aplica) rapidamente em outro texto." },
+            { category: "Guia Página Inicial", question: "Qual atalho de teclado aplica o formato 'Negrito' ao texto selecionado?", options: ["Ctrl + B", "Ctrl + N", "Ctrl + I", "Ctrl + U"], answer: 1, explanation: "Em português, 'Ctrl + N' aplica Negrito. Em inglês, seria Ctrl + B (Bold)." },
+            { category: "Guia Página Inicial", question: "Para colocar um texto ligeiramente acima da linha normal (como em X²), qual recurso é usado?", options: ["Subscrito", "Sobrescrito", "Tachado", "Maiúsculas"], answer: 1, explanation: "'Sobrescrito' eleva o texto (ex: m²). O 'Subscrito' o rebaixa (ex: H₂O)." },
+            { category: "Guia Página Inicial", question: "O botão com um 'A' e uma borracha (Limpar Toda a Formatação) tem qual função?", options: ["Apaga o texto selecionado", "Transforma o texto em letras minúsculas", "Remove todas as formatações, deixando apenas o texto normal sem formatação", "Deleta a cor de fundo do texto"], answer: 2, explanation: "Ele é muito útil ao colar textos da internet, pois reseta o texto para o padrão de fonte inicial do Word, removendo links, cores e negritos." },
+            { category: "Guia Página Inicial", question: "Na Área de Transferência, a opção 'Manter Somente Texto' ao colar significa que:", options: ["A formatação original do texto será mantida", "O texto adotará a formatação do destino, descartando a formatação original", "O texto será convertido em uma imagem", "O texto será inserido dentro de uma tabela"], answer: 1, explanation: "Isso limpa cores, fontes diferentes e links do texto copiado, forçando-o a assumir a mesma aparência do local onde você o colou." },
+            { category: "Guia Página Inicial", question: "Qual atalho de teclado alinha o parágrafo à direita?", options: ["Ctrl + E", "Ctrl + J", "Ctrl + R", "Ctrl + G"], answer: 3, explanation: "No Brasil (PT-BR), Ctrl + G alinha à direita. Ctrl + E centraliza, Ctrl + J justifica e Ctrl + Q alinha à esquerda." },
+            { category: "Guia Página Inicial", question: "O alinhamento 'Justificar' (Ctrl + J) faz o quê com o parágrafo?", options: ["Centraliza todas as linhas", "Alinha o texto à esquerda, deixando a direita irregular", "Distribui o texto uniformemente entre as margens esquerda e direita", "Adiciona espaçamento duplo entre as linhas"], answer: 2, explanation: "O Justificar ajusta os espaços entre as palavras para que o texto forme blocos retos encostando em ambas as margens, criando um visual limpo e formal." },
+            { category: "Guia Página Inicial", question: "O botão 'Mostrar Tudo' (¶) na guia Página Inicial serve para:", options: ["Exibir marcas de parágrafo e outros símbolos de formatação ocultos", "Mostrar todas as páginas do documento ao mesmo tempo", "Expandir a faixa de opções", "Revelar textos que foram deletados"], answer: 0, explanation: "Ele revela onde você deu espaços (pontinhos), quebras de linha (setas) e marca o fim de cada parágrafo (símbolo ¶)." },
+            { category: "Guia Página Inicial", question: "No grupo Parágrafo, a ferramenta 'Sombreamento' (ícone de um balde de tinta) altera a cor de:", options: ["Fundo da página inteira", "Fundo do texto, parágrafo ou célula de tabela selecionada", "Cor da fonte do texto", "Cor da borda da página"], answer: 1, explanation: "Diferente da Cor do Realce, o Sombreamento preenche todo o bloco do parágrafo de ponta a ponta, sendo ótimo para destacar seções ou células de tabelas." },
+            { category: "Guia Página Inicial", question: "O recurso 'Espaçamento de Linha e Parágrafo' permite alterar:", options: ["Apenas o espaço entre as letras", "Apenas as margens da página", "O espaço entre as linhas de texto e antes/depois dos parágrafos", "A distância entre o cabeçalho e o texto"], answer: 2, explanation: "Com ele, você pode deixar as linhas mais separadas (ex: espaçamento 1,5) e adicionar espaços vazios antes ou depois que você aperta a tecla Enter." },
+            { category: "Guia Página Inicial", question: "Qual opção converte todo o texto selecionado em letras MAIÚSCULAS?", options: ["Efeitos de Texto", "Maiúsculas e Minúsculas (Aa)", "Sublinhado", "Realce de Texto"], answer: 1, explanation: "O botão 'Aa' tem várias funções de conversão, permitindo alternar rapidamente entre tudo maiúsculo, minúsculo ou estilo de frase." },
+            { category: "Guia Página Inicial", question: "A Galeria de Estilos (Normal, Título 1, Título 2...) é fundamental para:", options: ["Mudar apenas a cor da fonte", "Gerar automaticamente um Sumário posteriormente e manter a formatação consistente", "Proteger o documento", "Inserir quebras de página"], answer: 1, explanation: "Usar Estilos ajuda o Word a 'entender' a estrutura do seu texto. Se você marcar seus capítulos com 'Título 1', o Word montará o índice (sumário) sozinho depois." },
+            { category: "Guia Página Inicial", question: "No grupo Edição, o comando 'Localizar' (Ctrl + L) abre:", options: ["A janela de impressão", "O painel de Navegação", "A área de transferência", "O dicionário de sinônimos"], answer: 1, explanation: "Ele abre um painel lateral onde você pode pesquisar por palavras-chave e ver uma lista de todos os locais onde ela aparece no texto." },
+            { category: "Guia Página Inicial", question: "O atalho de teclado para o comando 'Substituir' é:", options: ["Ctrl + L", "Ctrl + U", "Ctrl + S", "Ctrl + R"], answer: 1, explanation: "No Brasil, 'Ctrl + U' abre a janela SubstitUir, permitindo trocar palavras em massa rapidamente." },
+            { category: "Guia Página Inicial", question: "Qual atalho de teclado centraliza o texto?", options: ["Ctrl + C", "Ctrl + E", "Ctrl + M", "Ctrl + T"], answer: 1, explanation: "No PT-BR, usamos 'Ctrl + E' para centralizar (cEntralizar). Ctrl + C é copiar." },
+            { category: "Guia Página Inicial", question: "Para criar uma lista com números, letras ou algarismos romanos, usamos o botão:", options: ["Marcadores", "Numeração", "Lista de Vários Níveis", "Classificar"], answer: 1, explanation: "O botão Numeração organiza listas em ordem (1, 2, 3... ou A, B, C...). Os Marcadores usam símbolos como bolinhas e quadrados." },
+            { category: "Guia Página Inicial", question: "O botão 'Aumentar Recuo' faz com que o parágrafo se mova para:", options: ["A margem esquerda", "A margem superior", "Mais longe da margem esquerda (para a direita)", "A próxima página"], answer: 2, explanation: "Ele empurra o bloco de texto inteiro para a direita. É útil para citações longas ou para criar sub-tópicos." },
+            { category: "Guia Página Inicial", question: "No botão 'Maiúsculas e Minúsculas', a opção 'Colocar Cada Palavra Em Maiúscula' faz o quê?", options: ["Apenas a primeira letra do parágrafo fica maiúscula", "Todas as letras ficam maiúsculas", "A primeira letra de cada palavra fica maiúscula", "Inverte maiúsculas e minúsculas"], answer: 2, explanation: "Muda o texto para o formato onde a inicial de cada palavra é destacada. Exemplo: 'Este É O Título'." },
+            { category: "Guia Página Inicial", question: "Qual comando é útil para ordenar uma lista em ordem alfabética na guia Página Inicial?", options: ["Classificar (A a Z)", "Filtro", "Estilos", "Agrupar"], answer: 0, explanation: "O botão 'Classificar' (ícone A->Z) organiza parágrafos, listas ou tabelas em ordem crescente (alfabética) ou decrescente." },
+            { category: "Guia Página Inicial", question: "A ferramenta 'Efeitos de Texto e Tipografia' permite adicionar ao texto:", options: ["Sombras, reflexos e brilhos", "Tabelas e gráficos", "Apenas cores sólidas", "Comentários ocultos"], answer: 0, explanation: "É aquele botão com a letra 'A' estilizada em azul, usado para deixar títulos visualmente atraentes com efeitos gráficos rápidos." },
+            { category: "Guia Página Inicial", question: "Qual a diferença entre Sublinhado (Ctrl+S) e Tachado?", options: ["Nenhuma, ambos fazem a mesma coisa", "Sublinhado coloca uma linha embaixo da palavra, Tachado corta a palavra com uma linha no meio", "Sublinhado destaca com cor amarela, Tachado apaga o texto", "Sublinhado é para títulos, Tachado é para notas de rodapé"], answer: 1, explanation: "O Sublinhado sublinha por baixo. O Tachado passa um traço horizontal no meio das letras, geralmente usado para indicar que algo foi removido ou corrigido." },
+            { category: "Guia Página Inicial", question: "Para selecionar todo o texto do documento rapidamente, usa-se:", options: ["Ctrl + T", "Ctrl + A", "Ctrl + E", "Ctrl + P"], answer: 0, explanation: "No Word PT-BR, 'Ctrl + T' (Tudo) seleciona todo o documento. Em inglês, seria Ctrl+A (All)." },
+            { category: "Guia Página Inicial", question: "Como aplicar o 'Pincel de Formatação' em múltiplos parágrafos não consecutivos sem ter que clicar nele novamente?", options: ["Dando um clique duplo no botão Pincel de Formatação", "Segurando a tecla Shift", "Segurando a tecla Ctrl", "Isso não é possível"], answer: 0, explanation: "Se você der apenas um clique no pincel, ele desliga após o primeiro uso. O clique duplo 'trava' o pincel ativado para você usá-lo várias vezes." },
+            { category: "Guia Página Inicial", question: "Se o espaçamento entre linhas padrão do Word é 1,08, e você quer espaço duplo, qual atalho rápido pode usar no teclado?", options: ["Ctrl + 1", "Ctrl + 2", "Ctrl + 5", "Ctrl + D"], answer: 1, explanation: "'Ctrl + 2' aplica espaçamento duplo. 'Ctrl + 1' aplica espaço simples e 'Ctrl + 5' aplica espaço de 1,5 linhas." },
+            { category: "Guia Página Inicial", question: "O grupo 'Fonte' na guia Página Inicial contém um pequeno ícone de seta no canto inferior direito. O que ele faz?", options: ["Aumenta o zoom", "Abre a caixa de diálogo Fonte com opções avançadas", "Restaura as configurações padrão", "Oculta a faixa de opções"], answer: 1, explanation: "Essa pequena setinha (presente em vários grupos) abre um menu mais detalhado com opções que não couberam na barra superior." },
+            { category: "Guia Página Inicial", question: "O botão de Cor de Realce do Texto funciona de forma semelhante a:", options: ["Uma borracha", "Um marcador de texto em papel (caneta marca-texto)", "Uma lata de tinta spray", "Um pincel de aquarela"], answer: 1, explanation: "Ele adiciona uma faixa de cor fluida (geralmente amarelo) 'em cima' das palavras, simulando as famosas canetas marca-texto fluorescentes." },
+            { category: "Guia Página Inicial", question: "O que acontece ao clicar na opção 'Selecionar > Selecionar Objetos' no grupo Edição?", options: ["O cursor permite selecionar imagens e formas atrás do texto sem selecionar o texto", "Seleciona todos os parágrafos idênticos", "Agrupa todas as imagens do documento", "Abre a galeria de objetos 3D"], answer: 0, explanation: "Se uma imagem está posicionada 'Atrás do Texto', fica impossível clicar nela. Essa ferramenta altera o mouse para ignorar o texto e capturar o objeto de fundo." },
+            { category: "Guia Página Inicial", question: "O atalho Ctrl + D ou Ctrl + Fonte abre qual janela?", options: ["Deletar texto", "Configurar Página", "Caixa de diálogo Fonte", "Dicionário"], answer: 2, explanation: "Abre a janela detalhada de opções da Fonte, permitindo escolher tamanhos, estilos e efeitos em uma só tela." },
+            { category: "Guia Página Inicial", question: "Ao aplicar o 'Estilo Título 1', por padrão, o Word também adiciona:", options: ["Uma tabela", "Um marcador", "Espaço antes e depois do parágrafo e formatação destacada", "Um rodapé"], answer: 2, explanation: "Os Estilos aplicam pacotes completos. O Título 1 muda cor, aumenta fonte e separa o parágrafo automaticamente para criar visual de cabeçalho de seção." },
+            { category: "Guia Página Inicial", question: "O comando 'Substituir Tudo' serve para:", options: ["Apagar todo o texto do documento", "Trocar automaticamente todas as ocorrências de uma palavra por outra de uma só vez", "Trocar a fonte de todo o texto", "Trocar o idioma de revisão"], answer: 1, explanation: "Se você escreveu um nome errado 50 vezes, você o busca no Substituir e clica em Substituir Tudo para o Word corrigir as 50 ocorrências instantaneamente." },
+
+            // GUIA INSERIR (51-85)
+            { category: "Guia Inserir", question: "A opção 'Quebra de Página' pode ser acionada rapidamente pelo atalho:", options: ["Ctrl + Enter", "Shift + Enter", "Alt + Enter", "Ctrl + Espaço"], answer: 0, explanation: "O 'Ctrl + Enter' joga todo o conteúdo após o cursor para o início da próxima folha imediatamente, sem precisar apertar o 'Enter' várias vezes." },
+            { category: "Guia Inserir", question: "A 'Folha de Rosto' no Word é útil para:", options: ["Esconder o texto do documento", "Inserir uma capa pré-formatada no início do documento", "Criar um índice analítico", "Adicionar uma marca d'água"], answer: 1, explanation: "São capas profissionais prontas oferecidas pelo Word que já contém espaços para título, nome e data do trabalho." },
+            { category: "Guia Inserir", question: "Ao inserir uma Tabela, se você pressionar a tecla 'Tab' na última célula da tabela, o que acontece?", options: ["O cursor sai da tabela", "A tabela é deletada", "Uma nova linha é automaticamente criada na tabela", "A célula é dividida em duas"], answer: 2, explanation: "Essa é uma forma muito rápida e produtiva de ir aumentando sua tabela conforme você vai digitando, sem precisar usar o mouse." },
+            { category: "Guia Inserir", question: "O botão 'Imagens' permite inserir uma imagem a partir de:", options: ["Apenas da área de transferência", "Apenas da internet", "Do seu computador ou rede local", "Apenas do scanner"], answer: 2, explanation: "O botão principal 'Imagens' abre o explorador de arquivos local (seu HD ou pen-drive). Para internet, existe o botão 'Imagens Online'." },
+            { category: "Guia Inserir", question: "Para criar diagramas organizacionais ou processos de forma rápida e visual, a melhor ferramenta é:", options: ["Gráfico", "SmartArt", "WordArt", "Tabela"], answer: 1, explanation: "O SmartArt possui opções ricas e automatizadas para desenhar fluxogramas, hierarquias, ciclos e listas gráficas inteligentes." },
+            { category: "Guia Inserir", question: "A ferramenta 'Instantâneo' na guia Inserir serve para:", options: ["Tirar uma foto com a webcam", "Capturar a tela (screenshot) de janelas abertas no computador e colar no documento", "Converter o texto em imagem", "Reduzir o tamanho do arquivo"], answer: 1, explanation: "Ela reconhece outras janelas do Windows abertas e permite inseri-las diretamente como imagem (como uma ferramenta de print nativa)." },
+            { category: "Guia Inserir", question: "Para adicionar um vídeo do YouTube ao seu documento, qual botão deve ser usado?", options: ["Mídia > Vídeo Online", "Ilustrações > Ícones", "Texto > Objeto", "Links > Indicador"], answer: 0, explanation: "Permite inserir o link de um vídeo do YouTube ou Vimeo para ser reproduzido dentro do Word (desde que o usuário tenha internet)." },
+            { category: "Guia Inserir", question: "O comando 'Link' (ou Hiperlink) (Ctrl + K) permite criar um atalho para:", options: ["Uma página web, outro arquivo, ou um local no mesmo documento", "Apenas páginas da internet", "Apenas para e-mails", "Excluir um texto"], answer: 0, explanation: "O Link é versátil: você pode apontar para sites (http), para anexar PDFs, enviar um e-mail ou pular para outra folha no mesmo Word." },
+            { category: "Guia Inserir", question: "O que é um 'Indicador' na guia Inserir?", options: ["Uma etiqueta visual vermelha no canto da página", "Um marcador invisível associado a um nome para você navegar rapidamente para aquele ponto depois", "Uma lista de tópicos", "O número da página atual"], answer: 1, explanation: "Serve como uma marca de leitura invisível. Se você está na página 50, pode criar um Indicador e depois gerar um link que volta direto para lá." },
+            { category: "Guia Inserir", question: "Onde o 'Cabeçalho' de um documento aparece?", options: ["Apenas na primeira página, no meio", "Na margem inferior de cada página", "Na margem superior de cada página", "Ao lado esquerdo do texto principal"], answer: 2, explanation: "O Cabeçalho fica repetido na margem superior de todas as folhas (como a logo de uma empresa). O Rodapé fica na inferior." },
+            { category: "Guia Inserir", question: "Qual dessas opções NÃO é um local padrão para inserir o Número de Página?", options: ["Início da Página", "Fim da Página", "Margens da Página", "Centro exato do documento flutuando sobre o texto"], answer: 3, explanation: "A numeração deve ficar fora da área principal do texto para não se misturar. Flutuar no centro atrapalharia a leitura." },
+            { category: "Guia Inserir", question: "Uma 'Caixa de Texto' é útil quando você precisa:", options: ["Apenas digitar texto normal", "Posicionar um texto livremente em qualquer lugar da página, independente do texto principal", "Criar uma tabela", "Mudar a cor da página"], answer: 1, explanation: "Ela atua como um 'post-it' flutuante. Você pode arrastá-la para cima de imagens ou para o canto da folha sem desconfigurar o texto principal." },
+            { category: "Guia Inserir", question: "O 'Letra Capitular' serve para:", options: ["Transformar todas as letras em maiúsculas", "Criar uma letra inicial grande e decorativa no início de um parágrafo", "Colocar o título em negrito", "Mudar a fonte do documento inteiro"], answer: 1, explanation: "Muito comum em livros clássicos, jornais ou revistas: aquela primeira letra do capítulo gigante que ocupa 3 ou 4 linhas." },
+            { category: "Guia Inserir", question: "O WordArt é:", options: ["Um verificador ortográfico", "Um texto decorativo com efeitos especiais visuais", "Uma ferramenta de desenho livre", "Um modelo de tabela predefinida"], answer: 1, explanation: "É focado em criar títulos robustos, com degradês, reflexos, sombras fortes e textos curvados/dobrados." },
+            { category: "Guia Inserir", question: "A opção 'Data e Hora' no grupo Texto permite:", options: ["Apenas inserir o calendário do mês", "Inserir a data e hora atual com opção de atualização automática ao abrir o documento", "Agendar uma reunião no Outlook", "Ver o tempo de edição do arquivo"], answer: 1, explanation: "Se marcar a caixa 'Atualizar Automaticamente', todo dia que abrir o documento, a data escrita mudará para o dia atual." },
+            { category: "Guia Inserir", question: "Para inserir fórmulas matemáticas complexas (como frações, raízes e integrais), usamos o botão:", options: ["Símbolo", "Equação", "SmartArt", "Objeto"], answer: 1, explanation: "A ferramenta de Equação abre guias matemáticas robustas para professores, cientistas ou estudantes formatarem cálculo." },
+            { category: "Guia Inserir", question: "Qual tecla de atalho abre rapidamente a caixa de diálogo para inserir um Link?", options: ["Ctrl + L", "Ctrl + K", "Ctrl + H", "Ctrl + I"], answer: 1, explanation: "O atalho mundial para Inserir (Lin)K é 'Ctrl + K'." },
+            { category: "Guia Inserir", question: "O botão 'Modelos 3D' permite inserir:", options: ["Apenas gráficos em barra 3D", "Objetos tridimensionais que podem ser rotacionados em 360 graus", "Textos em 3D", "Tabelas em 3D"], answer: 1, explanation: "Um recurso muito visual! Você insere um modelo (ex: um dinossauro ou coração humano) e usa o mouse para girá-lo para todos os lados." },
+            { category: "Guia Inserir", question: "A 'Página em Branco' difere da 'Quebra de Página' porque:", options: ["Ela insere uma página inteira em branco na posição do cursor e empurra o texto subsequente, criando uma quebra dupla", "Ela apaga o texto anterior", "Ela é usada apenas no final do documento", "Não há diferença"], answer: 0, explanation: "Página em Branco abre uma folha vazia no meio da leitura. A quebra apenas empurra o restante para o topo da próxima página." },
+            { category: "Guia Inserir", question: "Ao inserir um gráfico no Word, ele usa o motor de qual outro programa para gerenciar os dados?", options: ["PowerPoint", "Access", "Excel", "Publisher"], answer: 2, explanation: "O Word abre automaticamente uma pequena e prática janelinha de planilha do Excel para que você insira os números do seu gráfico." },
+            { category: "Guia Inserir", question: "O que é 'Referência Cruzada' na guia Inserir?", options: ["Um link para um elemento, como um título, figura ou tabela dentro do mesmo documento", "Um link para outro arquivo Word", "Uma ferramenta de tradução cruzada", "A citação bibliográfica"], answer: 0, explanation: "É quando você digita 'Veja a Figura 1', e o Word entende e transforma 'Figura 1' num link clicável que te leva até a foto." },
+            { category: "Guia Inserir", question: "Para adicionar o símbolo de Direitos Autorais (©), você vai em:", options: ["Inserir > Equação", "Inserir > Formas", "Inserir > Símbolo", "Inserir > WordArt"], answer: 2, explanation: "O menu Símbolo guarda caracteres especiais, moedas, grego, setas complexas e marcadores de copyright/registro (©, ®)." },
+            { category: "Guia Inserir", question: "A 'Linha de Assinatura' insere:", options: ["Uma linha preta contínua na parte inferior", "Um campo formatado especificamente para que uma pessoa assine digitalmente ou impressa", "O nome do autor do documento em todas as páginas", "A data atual"], answer: 1, explanation: "Cria um X com uma linha formal para contratos, permitindo até assinatura por ID Digital autenticada." },
+            { category: "Guia Inserir", question: "A ferramenta 'Partes Rápidas' é usada para:", options: ["Digitar rápido com correção automática", "Inserir blocos de texto, campos ou propriedades do documento que são usados com frequência", "Acelerar a impressão do documento", "Localizar palavras rapidamente"], answer: 1, explanation: "Excelente para quem escreve muitos ofícios! Você pode salvar rodapés ou parágrafos fixos como blocos automáticos (AutoTexto)." },
+            { category: "Guia Inserir", question: "Você pode desenhar sua própria tabela usando qual ferramenta na opção Tabelas?", options: ["Tabela Rápida", "Planilha do Excel", "Desenhar Tabela", "Inserir Tabela"], answer: 2, explanation: "Transforma o cursor num pequeno lápis, permitindo desenhar linhas, colunas e recortes diagonais de tabela como se fosse no papel." },
+            { category: "Guia Inserir", question: "Ao inserir uma forma (como um quadrado), uma nova guia contextual aparece. Qual o nome geralmente dado a ela?", options: ["Formato de Forma", "Design", "Revisão", "Layout da Página"], answer: 0, explanation: "As guias contextuais aparecem apenas quando você clica num objeto, permitindo editar cores e contornos." },
+            { category: "Guia Inserir", question: "O comando 'Comentário' adiciona uma nota associada a uma parte específica do texto. Onde o comentário é geralmente exibido?", options: ["No rodapé", "Em um balão na margem direita do documento", "Dentro do próprio texto em vermelho", "No cabeçalho"], answer: 1, explanation: "Eles ficam na lateral do documento, muito úteis para professores corrigirem trabalhos ou revisores sugerirem alterações no texto." },
+            { category: "Guia Inserir", question: "Os 'Ícones' disponíveis na guia Inserir são arquivos de qual tipo nativo que permite redimensionamento sem perda de qualidade?", options: ["JPG", "GIF", "SVG (Gráficos Vetoriais)", "BMP"], answer: 2, explanation: "Eles são Vetores (SVGs). Isso significa que você pode aumentá-los do tamanho de um outdoor e eles não ficarão 'quadradados' (pixelados)." },
+            { category: "Guia Inserir", question: "Para colocar um PDF anexo ou uma planilha de Excel dentro do seu documento Word como um ícone, você usa Inserir >:", options: ["Link", "Objeto", "Imagem", "Caixa de Texto"], answer: 1, explanation: "O comando 'Objeto' 'embute' um arquivo dentro de outro, gerando um pequeno ícone que, se clicado duas vezes, abrirá aquele outro arquivo." },
+            { category: "Guia Inserir", question: "Se você tem um texto longo e decide dividi-lo transformando-o em uma tabela, você seleciona o texto, vai em Tabela e clica em:", options: ["Inserir Tabela", "Desenhar Tabela", "Tabelas Rápidas", "Converter Texto em Tabela"], answer: 3, explanation: "Essa opção pega seu texto separado por vírgulas ou abas e encaixa instantaneamente os pedaços dentro de células, colunas e linhas certinhas." },
+            { category: "Guia Inserir", question: "O botão 'Suplementos' permite:", options: ["Baixar novas fontes do Windows", "Buscar e instalar miniapps da Office Store, como Wikipédia e emojis extras", "Atualizar o Word", "Mudar o idioma padrão"], answer: 1, explanation: "Suplementos (Add-ins) são extensões parecidas com as do Chrome. Adicionam funções de terceiros diretas no Word (ex: buscar Wikipédia no canto da tela)." },
+            { category: "Guia Inserir", question: "O 'Número de Página' é formatado na mesma área do documento que o:", options: ["Cabeçalho e Rodapé", "Tamanho do Papel", "Plano de fundo da página", "Marcadores e Numeração"], answer: 0, explanation: "Sempre que editar um Número de Página, o Word vai travar o texto e abrir a aba de Cabeçalho e Rodapé, pois a numeração 'vive' nas margens." },
+            { category: "Guia Inserir", question: "Para remover um hiperlink de uma palavra sem apagar a palavra, você deve:", options: ["Deletar a palavra e digitar de novo", "Clicar com o botão direito e escolher 'Remover Hiperlink'", "Apertar Ctrl + Z três vezes", "Pintar a letra de preto e tirar o sublinhado"], answer: 1, explanation: "O botão direito revela opções contextuais diretas para aquele local, incluindo limpar imediatamente a configuração azul de link." },
+            { category: "Guia Inserir", question: "A opção 'Tabelas Rápidas' fornece:", options: ["Modelos de tabelas pré-formatados, como calendários", "Uma tabela vazia de 10x10", "Uma ferramenta para desenhar com o mouse", "Um atalho de teclado para tabelas"], answer: 0, explanation: "Sabe aquele modelo pronto de lista dupla, calendário ou matriz de dados com cor e sombra? É uma Tabela Rápida salva no sistema." },
+            { category: "Guia Inserir", question: "Ao inserir um vídeo online, ele fica no documento como um(a):", options: ["Arquivo pesado incorporado, aumentando os megabytes", "Link reproduzível na tela, que requer internet para rodar", "Imagem estática que não pode ser clicada", "Texto com código HTML"], answer: 1, explanation: "O Word não salva o vídeo 'pesado' no arquivo final. Ele emula uma tela reprodutiva de site e só funciona se você tiver Wi-Fi ativo." },
+
+            // GUIA DESIGN (86-100)
+            { category: "Guia Design", question: "Qual é a principal função da guia Design?", options: ["Alterar o tamanho do papel e margens", "Aplicar temas visuais e formatar o plano de fundo do documento globalmente", "Desenhar livremente com canetas no documento", "Inserir gráficos e tabelas"], answer: 1, explanation: "A aba foca na estética global e fundo da página. Tamanho físico e margem ficam na guia 'Layout' (ou 'Layout da Página')." },
+            { category: "Guia Design", question: "Um 'Tema' do Word altera simultaneamente:", options: ["Cores, Fontes e Efeitos de todo o documento", "Apenas o tamanho da fonte do Título 1", "As margens e o espaçamento", "O idioma do corretor ortográfico"], answer: 0, explanation: "O Tema é o pacote visual máximo do documento (ex: tons de terra com fontes cursivas x tons azuis corporativos com letras retas)." },
+            { category: "Guia Design", question: "A ferramenta 'Marca d'água' é usada para:", options: ["Apagar manchas no fundo da página", "Inserir um texto ou imagem fantasma (translúcido) no fundo da página, como 'RASCUNHO'", "Proteger o documento com senha", "Aplicar ondas na borda da página"], answer: 1, explanation: "Um recurso muito usado para confidencialidade de empresas, aplicando as palavras 'CONFIDENCIAL', 'RASCUNHO' e até logomarcas leves ao fundo de tudo." },
+            { category: "Guia Design", question: "O comando 'Cor da Página' permite:", options: ["Alterar a cor da letra de toda a página", "Mudar o fundo do documento inteiro, como para preto ou azul claro", "Colorir apenas a primeira página", "Destacar o texto como um marca-texto"], answer: 1, explanation: "Ideal para criar PDFs digitais escuros ou livretos criativos. Nota: impressoras comuns frequentemente ignoram a cor de página por padrão para economizar tinta." },
+            { category: "Guia Design", question: "A ferramenta 'Bordas de Página' pode aplicar contornos em:", options: ["Apenas no texto selecionado", "Ao redor das margens da página inteira", "Apenas em imagens inseridas", "Apenas em tabelas"], answer: 1, explanation: "A ferramenta cria molduras nas folhas do seu documento, sendo muito comuns na construção de apostilas, certificados ou convites." },
+            { category: "Guia Design", question: "No menu de Bordas de Página, a opção 'Arte' permite:", options: ["Desenhar a borda com o mouse livremente", "Colocar desenhos como maçãs, estrelas ou árvores contornando a página", "Inserir obras de arte famosas do museu", "Aplicar filtros do Instagram na página"], answer: 1, explanation: "Muda das simples linhas contínuas para bordas divertidas de cliparts pré-carregadas pelo Word (árvores, morcegos, lápis...)." },
+            { category: "Guia Design", question: "Se você alterar a 'Fonte do Tema' na guia Design, o que acontece?", options: ["Todo o texto formatado com estilos do tema muda para as novas fontes de Título e Corpo selecionadas", "Ocorre a mudança apenas do parágrafo onde o cursor está", "O Word apaga o texto atual e pede para digitar com a nova fonte", "Nada, a menos que o texto seja selecionado primeiro"], answer: 0, explanation: "Esta é a maravilha da Formatação Documental: num clique você atualiza a fonte de TODOS os títulos do documento e todo texto principal de uma só vez." },
+            { category: "Guia Design", question: "A Galeria 'Formatação do Documento' oferece várias opções de Conjuntos de Estilos. Eles dependem do quê para funcionar corretamente?", options: ["Que o usuário tenha usado negrito e itálico", "Que o texto esteja estruturado usando os Estilos da Página Inicial (como Título 1, Título 2, Normal)", "Que haja tabelas no documento", "Que o documento esteja salvo em PDF"], answer: 1, explanation: "O Design automático é cego. Ele só aplica visual bonito se o autor antes tiver avisado, usando a guia Inicial, onde estavam os títulos e capítulos." },
+            { category: "Guia Design", question: "O botão 'Definir como Padrão' na guia Design faz o quê?", options: ["Salva a combinação atual de tema e estilos para ser o padrão de todos os novos documentos em branco", "Reseta o documento para as configurações de fábrica do Word", "Apaga o tema atual", "Desfaz a última ação"], answer: 0, explanation: "Excelente para identidades corporativas! Se você configurou um belo azul com Calibri, clicar nisso fará os próximos 'Novos Arquivos' já abrirem lindos com esse estilo." },
+            { category: "Guia Design", question: "O recurso 'Espaçamento de Parágrafo' na guia Design (Ex: Sem Espaço de Parágrafo, Compacto, Aberto) afeta:", options: ["Apenas a primeira linha do parágrafo", "O espaçamento de linha e entre parágrafos em todo o documento de uma só vez", "A distância da borda para a margem", "O espaçamento das letras na palavra"], answer: 1, explanation: "Altera o ritmo e o respiro global do documento. 'Compacto' aperta todo o texto. 'Aberto/Duplo' alonga o documento para muito mais folhas." },
+            { category: "Guia Design", question: "Você pode criar uma 'Marca d'água Personalizada' usando:", options: ["Apenas textos pré-definidos", "Apenas imagens", "Textos personalizados (digitando o que quiser) ou escolhendo uma imagem do computador", "Vídeos online"], answer: 2, explanation: "Pode ser desde um texto 'PROVA BIMESTRAL' inclinado na diagonal com cor vermelha até o logo da escola centralizado esmaecido." },
+            { category: "Guia Design", question: "Na opção 'Cor da Página', se você for em 'Efeitos de Preenchimento', é possível escolher:", options: ["Gradientes (Degradê), Texturas e Padrões", "Fontes 3D", "SmartArts automáticos", "Vídeos como plano de fundo"], answer: 0, explanation: "Oferece texturas incríveis de pergaminho, mármore ou madeira, padrões quadriculados e gradientes misturando 2 cores." },
+            { category: "Guia Design", question: "Se você aplicar uma Marca d'água em um documento de 10 páginas, ela aparecerá:", options: ["Apenas na página 1", "Apenas na última página", "Em todas as páginas do documento (por padrão)", "Onde você clicar com o mouse"], answer: 2, explanation: "Como o recurso trabalha aliado à ferramenta de 'Cabeçalho e Rodapé' do fundo, a aplicação reflete automaticamente no documento inteiro." },
+            { category: "Guia Design", question: "No menu de Bordas de Página, se você selecionar a opção 'Aplicar a: Esta seção - apenas a primeira página', o que acontece?", options: ["A borda aparecerá em todas as páginas exceto a primeira", "A borda aparecerá apenas na folha de rosto ou primeira página da seção", "A borda será deletada", "O programa travará"], answer: 1, explanation: "Muito inteligente para não poluir trabalhos: você aplica a borda enfeitada da escola só na capa frontal, deixando o texto que segue simples." },
+            { category: "Guia Design", question: "Qual a diferença entre a guia Design e a guia Layout (antiga Layout de Página)?", options: ["Design foca no aspecto estético global (temas, cores, fundo), enquanto Layout trata da estrutura física (margens, tamanho, orientação)", "Design é para tabelas, Layout para gráficos", "Design muda a fonte, Layout muda a cor", "Nenhuma, são funções idênticas espalhadas"], answer: 0, explanation: "Decore: Design = Beleza Visual global (Temas, Cor Fundo). Layout = Estrutura Física/Folha (A4, Paisagem, Margem Estreita, Colunas)." }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let isAnswered = false;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressBar = document.getElementById('progress-bar');
+        const headerProgress = document.getElementById('header-progress');
+        const questionCounter = document.getElementById('question-counter');
+        const nextBtn = document.getElementById('next-btn');
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            progressBarContainer.classList.remove('hidden');
+            headerProgress.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.classList.add('hidden');
+            document.getElementById('feedback-message').innerHTML = '';
+            
+            // Oculta e limpa a explicação na nova questão
+            document.getElementById('explanation-box').classList.add('hidden');
+            
+            const q = questions[currentQuestionIndex];
+            
+            // Update counter and progress
+            questionCounter.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+            const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Setup Question
+            document.getElementById('question-category').textContent = q.category;
+            document.getElementById('question-text').textContent = `${currentQuestionIndex + 1}. ${q.question}`;
+            
+            // Setup Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition font-medium text-gray-700 bg-white option-btn';
+                btn.innerHTML = `<span class="inline-block w-8 font-bold text-blue-600">${String.fromCharCode(65 + index)}.</span> ${opt}`;
+                btn.onclick = () => selectOption(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex, btn) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const q = questions[currentQuestionIndex];
+            const isCorrect = selectedIndex === q.answer;
+            const buttons = document.querySelectorAll('.option-btn');
+
+            // Record answer
+            userAnswers.push({
+                question: q.question,
+                selected: selectedIndex,
+                correct: q.answer,
+                options: q.options,
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) score++;
+
+            // Visual feedback
+            buttons.forEach((b, i) => {
+                b.classList.remove('hover:border-blue-400', 'hover:bg-blue-50', 'border-gray-200');
+                b.style.cursor = 'default';
+                if (i === q.answer) {
+                    b.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                } else if (i === selectedIndex && !isCorrect) {
+                    b.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                } else {
+                    b.classList.add('opacity-50');
+                }
+            });
+
+            const feedbackMsg = document.getElementById('feedback-message');
+            if (isCorrect) {
+                feedbackMsg.innerHTML = '<span class="text-green-600 flex items-center gap-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Correta!</span>';
+            } else {
+                feedbackMsg.innerHTML = '<span class="text-red-600 flex items-center gap-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Incorreta!</span>';
+            }
+
+            // Exibe a explicação
+            const explanationBox = document.getElementById('explanation-box');
+            const explanationText = document.getElementById('explanation-text');
+            explanationText.textContent = q.explanation || "Nenhuma explicação disponível.";
+            explanationBox.classList.remove('hidden');
+
+            nextBtn.classList.remove('hidden');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.innerHTML = 'Ver Resultados &rarr;';
+                nextBtn.classList.replace('word-blue', 'bg-green-600');
+                nextBtn.classList.replace('word-blue-hover', 'hover:bg-green-700');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            progressBarContainer.classList.add('hidden');
+            headerProgress.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = score;
+
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+
+            const wrongAnswers = userAnswers.filter(ans => !ans.isCorrect);
+
+            if (wrongAnswers.length === 0) {
+                reviewContainer.innerHTML = '<div class="text-green-600 font-bold text-center p-4">Parabéns! Você gabaritou o simulado! Perfeito.</div>';
+            } else {
+                wrongAnswers.forEach((ans, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-white border-l-4 border-red-500 p-4 rounded shadow-sm text-left';
+                    item.innerHTML = `
+                        <p class="font-semibold text-gray-800 mb-2">Q: ${ans.question}</p>
+                        <p class="text-sm text-red-600 line-through mb-1"><span class="font-medium text-gray-600">Sua resposta:</span> ${ans.options[ans.selected]}</p>
+                        <p class="text-sm text-green-700 font-medium"><span class="text-gray-600">Correta:</span> ${ans.options[ans.correct]}</p>
+                    `;
+                    reviewContainer.appendChild(item);
+                });
+            }
+        }
+
+        function restartQuiz() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            
+            // Reset next button style
+            nextBtn.innerHTML = 'Próxima Questão &rarr;';
+            nextBtn.classList.replace('bg-green-600', 'word-blue');
+            nextBtn.classList.replace('hover:bg-green-700', 'word-blue-hover');
+        }
+    </script>
+</body>
+</html>
